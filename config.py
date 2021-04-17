@@ -5,7 +5,6 @@ import subprocess
 from libqtile import bar, layout, widget, hook
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
 from libqtile import qtile
 
 mod = "mod4" # Super Key
@@ -51,71 +50,31 @@ keys = [
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod], "x", lazy.window.kill(), desc="Kill focused window"),
 
     Key([mod, "control"], "r", lazy.restart(), desc="Restart Qtile"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "r", lazy.spawn("dmenu_run"),
+    Key([mod], "d", lazy.spawn("dmenu_run"),
         desc="Spawn a command using a prompt widget"),
 ]
 
-# groups = [Group(i) for i in "123456789"]
-
-# group_names = [("WWW", {'layout': 'monadtall'}),
-#                ("DEV", {'layout': 'monadtall'}),
-#                ("SYS", {'layout': 'monadtall'}),
-#                ("DOC", {'layout': 'monadtall'}),
-#                ("VBOX", {'layout': 'monadtall'}),
-#                ("CHAT", {'layout': 'monadtall'}),
-#                ("MUS", {'layout': 'monadtall'}),
-#                ("VID", {'layout': 'monadtall'}),
-#                ("GFX", {'layout': 'floating'})]
 group_names = [
     ("",{'layout': 'monadtall'}),
-    ("",{'layout': 'monadtall'}),
+    ("",{'layout': 'monadtall'}),
     ("",{'layout': 'monadtall'}),
-    ("",{'layout': 'monadtall'}),
+    ("",{'layout': 'floating'}),
     ("",{'layout': 'floating'}),
-    ("",{'layout': 'monadtall'}),
+    ("",{'layout': 'floating'}),
     ("",{'layout': 'monadtall'}),
     ("",{'layout': 'monadtall'}),
     ("",{'layout': 'floating'}),
 ]
+
 colors = [
-    "#030403",
-    "#101412",
-    "#202623",
-    "#36403c",
-    "#52605a",
-    "#74877f", # Focus Colors
-    "#9cb5ab", #$
-    "#cbe9dd",
-    "#9e7dd9", # *9
-    "#b9cc7b",
-    "#4acea5",
-    "#67b9d1",
-    "#5dcfed",
-    "#c6b1f1",
-    "#eeb899",
-    "#a186d2"
-]
-colors = [
-    "#030403",
-    "#101412",
-    "#202623",
-    "#36403c",
-    "#52605a",
-    "#74877f",
-    "#9cb5ab",
-    "#cbe9dd",
-    "#9e7dd9",
-    "#b9cc7b",
-    "#4acea5",
-    "#67b9d1",
-    "#5dcfed",
-    "#c6b1f1",
-    "#eeb899",
-    "#a186d2"
+    "030403", # BG
+    "ffffff", # FG
+    "4d5562", # P1
+    "383c44",# P2
 ]
 groups = [Group(name, **kwargs) for name, kwargs in group_names]
 
@@ -123,26 +82,10 @@ for i, (name, kwargs) in enumerate(group_names, 1):
     keys.append(Key([mod], str(i), lazy.group[name].toscreen()))        # Switch to another group
     keys.append(Key([mod, "shift"], str(i), lazy.window.togroup(name))) # Send current window to another group
 
-
-
-# for i in groups:
-#     keys.extend([
-#         # mod1 + letter of group = switch to group
-#         Key([mod], i.name, lazy.group[i.name].toscreen(),
-#             desc="Switch to group {}".format(i.name)),
-
-#         # mod1 + shift + letter of group = switch to & move focused window to group
-#         Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
-#             desc="Switch to & move focused window to group {}".format(i.name)),
-#         # Or, use below if you prefer not to switch to that group.
-#         # # mod1 + shift + letter of group = move focused window to group
-#         # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-#         #     desc="move focused window to group {}".format(i.name)),
-#     ])
 layout_defaults = {
     "border_width": 2,
     "margin": 8,
-    "border_focus": colors[10],
+    "border_focus": colors[3],
     "border_normal": "1D2330"
 }
 
@@ -162,6 +105,7 @@ layouts = [
     layout.TreeTab(**layout_defaults),
     layout.VerticalTile(**layout_defaults),
     layout.Zoomy(**layout_defaults),
+    layout.Floating(border_width=0, border_focus=colors[1]),
 ]
 
 
@@ -169,19 +113,11 @@ layouts = [
 widget_defaults = dict(
     font='Ubuntu',
     fontsize=12,
-    foreground= "#ffffff",
-    # background=colors[8]
+    foreground= colors[1],
+    background=colors[0],
     padding=2,
 )
 extension_defaults = widget_defaults.copy()
-
-widgets = [
-                widget.CurrentLayout(),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.Sep(size_percent=90),
-            ],
 
 screens = [
     Screen(
@@ -189,162 +125,173 @@ screens = [
           [
                 widget.GroupBox(
                     font="Ubuntu Mono",
-                    highlight_color= colors[10],
+                    highlight_color= colors[2],
                     rounded=False,
                     border_width=0,
-                    highlight_method='line',
-                    active="f3f3f3",
-                    urgent_text="#ffffff",
-                    inactive="f0f0f0",
-                    background=colors[1],
+                    highlight_method="block",
+                    active=colors[1],
+                    urgent_text="ffffff",
+                    inactive="fcfcfc",
+                    background=colors[0],
                     padding=5,
                     margin_y = 3.7,
-                    # background=colors[9]
-                    # urgent_
                 ),
-                widget.Prompt(),
                 widget.Sep(
-                       foreground=colors[1],
-                       background=colors[1],
-                       padding = 15,
+                       foreground=colors[0],
+                       background=colors[0],
+                       padding = 5,
                 ),
                 widget.WindowName(
-                    font="Ubuntu Medium",
+                   font="Ubuntu Medium",
                    format="{name}",
-                    max_chars=30,
+                   max_chars=30,
                     
                 ),
-                # widget.Sep(
-                #        foreground=colors[1],
-                #        background=colors[1],
-                #        margin= 90,
-                # ),
-                widget.Spacer(),
-                #   widget.TextBox(
-                #        text = "",
-                #        foreground = "ffffff",
-                #     #    background = colors[10],
-                #     #    margin = 10
-                #        ),
                 
-                ###### CENTER WIDGETS ######
-                widget.TextBox(
-                    text=""
-                ),
-                widget.Volume(
-                    format="{volume}"
-                ),
-                widget.Sep(
-                       foreground=colors[1],
-                       background=colors[1],
-                       padding = 15,
-                ),
-                widget.Clock(format=' %a %d, %I:%M'),
-                widget.Sep(
-                       foreground=colors[1],
-                       background=colors[1],
-                       padding = 15,
-                ),
-                widget.CheckUpdates(
-                       update_interval = 1800,
-                       distro = "Arch",
-                       display_format = " {updates}",
-                       foreground = colors[2],
-                       mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(terminal + ' -e sudo pacman -Syu')},
-                    #    background = colors[10]
-                ),
-                widget.Spacer(),
-                widget.Spacer(),
-
+                ###########################
                 ###### RIGHT WIDGETS ######
+                ###########################
 
+                # Enable notifications if you want by uncommenting code beneath
+                widget.Notify(),
                 widget.TextBox(
                     text="",
-                    foreground=colors[9],
-                    background=colors[1],
+                    foreground=colors[2],
+                    background=colors[0],
                     
                     fontsize=53,
-                    padding=-4.5
-                ),
-                widget.Notify(),
-                
+                    padding=-0.1
+                ),             
 
                 widget.Systray(
-                    background=colors[9],
+                    background=colors[2],
                     paddding=9
                 ),
+
                 widget.TextBox(
                     text="",
-                    foreground=colors[10],
-                    background=colors[9],
+                    foreground=colors[3],
+                    background=colors[2],
                     
                     fontsize=53,
-                    padding=-4.5
+                    padding=-0.1
+
+                ),
+                widget.TextBox(
+                    text="",
+                    background=colors[3],
                 ),
                 widget.OpenWeather(
                     format="{main_temp} °{units_temperature}",
                     cityid="1266049",
-                    background=colors[10]
+                    background=colors[3]
                 ),
+
                 widget.TextBox(
                     text="",
-                    foreground=colors[9],
-                    background=colors[10],
+                    foreground=colors[2],
+                    background=colors[3],
                     
                     fontsize=53,
-                    padding=-4.5
+                    padding=-0.1
                 ),
                 widget.Net(
                     format="{down} ↓↑ {up}",
-                    background=colors[9]
+                    background=colors[2]
                 ),          
                 widget.TextBox(
                     text="",
-                    foreground=colors[10],
-                    background=colors[9],
+                    foreground=colors[3],
+                    background=colors[2],
                     fontsize=53,
-                    padding=-4.5
+                    padding=-0.1
                 ),
                       
                 widget.TextBox(
                     text="",
-                    background=colors[10],
+                    background=colors[3],
                     padding=0
                 ),
                 widget.CPU(
-                    format='{freq_current}GHz {load_percent}%',
-                    background=colors[10],
+                    format='{freq_current}GHz', # Append this, if you want to show percentage `{load_percent}%`
+                    background=colors[3],
                     padding=3
                 ),
                 widget.TextBox(
                     text="",
-                    foreground=colors[9],
-                    background=colors[10],
+                    foreground=colors[2],
+                    background=colors[3],
                     fontsize=38,
-                    padding= -3.5
+                    padding= -0.1
                 ),
                 widget.CurrentLayoutIcon(
                        custom_icon_paths = [os.path.expanduser("~/.config/qtile/icons")],
                        foreground = colors[0],
-                       background = colors[9],
+                       background = colors[2],
                        padding = 3,
                        scale = 0.7
                 ),
                 widget.TextBox(
                     text="",
-                    foreground=colors[10],
-                    background=colors[9],
+                    foreground=colors[3],
+                    background=colors[2],
                     fontsize=38,
-                    padding=-3.5
+                    padding=-0.1
                 ),
                 widget.TextBox(
                     text="",
-                    background=colors[10],
+                    background=colors[3],
                     padding=0
                 ),
-                widget.Memory(background=colors[10]),
+                widget.Memory(background=colors[3]),
+                widget.TextBox(
+                    text="",
+                    foreground=colors[2],
+                    background=colors[3],
+                    fontsize=38,
+                    padding=-0.1
+                ),
+
+                widget.CheckUpdates(
+                       update_interval = 1800,
+                       distro = "Arch",
+                       display_format = " {updates}",
+                       foreground = colors[2],
+                       background= colors[2],
+                       mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(terminal + ' -e sudo pacman -Syu')},
+                ),
+                widget.TextBox(
+                    text="",
+                    foreground=colors[3],
+                    background=colors[2],
+                    
+                    fontsize=53,
+                    padding=-0.1
+                ),
+                widget.TextBox(
+                    text="",
+                    background=colors[3]
+                ),
+                widget.Volume(
+                    format="{volume}",
+                    background=colors[3]
+                ),
+                widget.TextBox(
+                    text="",
+                    foreground=colors[2],
+                    background=colors[3],
+                    
+                    fontsize=53,
+                    padding=-0.1
+                ),
+
+                widget.Clock(
+                    format=' %a %d, %I:%M',
+                    background=colors[2]
+                ),
+
             ],
-            28,
+            26,
             background=colors[1],
         ),
     ),
@@ -383,5 +330,16 @@ def start_once():
     home = os.path.expanduser('~')
     subprocess.call([home + '/.config/qtile/autostart.sh'])
 
+# start_once()
+# def autostart():
+  #  processes = [
+   #     ['/usr/bin/setxkbmap', '-option', 'caps:swapescape'],
+    #    ['feh', '--bg-scale', '/home/user/Pictures/wallpaper/archfoil.jpg'],
+     #   ['blueman-applet'],
+      #  ['nextcloud']
+    #]
+
+    #for p in processes:
+     #   subprocess.Popen(p)
 
 wmname = "LG3D"
